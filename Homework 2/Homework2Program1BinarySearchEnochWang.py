@@ -5,7 +5,8 @@
 # Professor Gulnora Nurmatova 
 
 # Binary Search Algorithing that takes in a min, max, and number of recursive iterations
-def BinarySearch(low, high, tries):     
+def BinarySearch(low, high, tries): 
+    mid = 50    
     if low == 99:
         tries +=1
         userinput = input("Is it 100? (yes/no)")
