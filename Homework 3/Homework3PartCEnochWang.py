@@ -1,6 +1,6 @@
 # Enoch Wang
 # 2/12/2020
-# Homework 3 Part B
+# Homework 3 Part C
 # CSCI 6651
 # Professor Gulnora Nurmatova 
 
@@ -90,6 +90,7 @@ def query():
 "It's good to have a friend. Even if you're going to die.",
 "If you love a flower that lives on a star, then it's good at night, to look up at the sky. All the stars are blossoming."]
     list1 = query.split()
+    z = 0
     for quote in data_list:
         t = 0
         y = 0
@@ -98,6 +99,7 @@ def query():
             found_at = string1.find(list1[j].lower())
             if (found_at >= 0 and t == (len(list1) - 1)):
                 print("Found: ..."+quote[y:found_at +50], "...")
+                z = 1
                 break
             elif(found_at >= 0 and t == 0):
                 y = found_at
@@ -105,8 +107,9 @@ def query():
                 continue
             elif(found_at >= 0 and t != 0):
                 t = t + 1
-                continue
-
+                continue       
+    if (z == 0):
+        print("No results found")
 
 if __name__ == '__main__': 
     query()

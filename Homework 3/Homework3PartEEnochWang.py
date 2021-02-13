@@ -1,6 +1,6 @@
 # Enoch Wang
 # 2/12/2020
-# Homework 3 Part B
+# Homework 3 Part E
 # CSCI 6651
 # Professor Gulnora Nurmatova 
 
@@ -90,23 +90,51 @@ def query():
 "It's good to have a friend. Even if you're going to die.",
 "If you love a flower that lives on a star, then it's good at night, to look up at the sky. All the stars are blossoming."]
     list1 = query.split()
-    for quote in data_list:
-        t = 0
-        y = 0
-        for j in range(0,len(list1)):
-            string1 = quote.lower()
-            found_at = string1.find(list1[j].lower())
-            if (found_at >= 0 and t == (len(list1) - 1)):
-                print("Found: ..."+quote[y:found_at +50], "...")
-                break
-            elif(found_at >= 0 and t == 0):
-                y = found_at
-                t = t + 1
-                continue
-            elif(found_at >= 0 and t != 0):
-                t = t + 1
-                continue
+    list2 = []
+    z = 0
 
+    if(list1[1] == "OR" or list1[0] == list1[2]):
+        for quote in data_list:
+            string1 = quote
+            found_at = string1.find(list1[0])
+            found_at2 = string1.find(list1[2])
+            if((found_at >= 0) or (found_at2 >= 0)):
+                if (len(list2) == 0 ):
+                    list2.append(quote)
+                    print("Found: ..."+quote[0:found_at +500], "...")
+                    z = 1
+                else:
+                    for k in range(0,len(list2)):
+                        if(list2[k] != quote):
+                            list2.append(quote)
+                            print("Found: ..."+quote[0:found_at + 500], "...")
+                            z = 1
+                            break
+    elif (list1[1] == "AND"):
+        for quote in data_list:
+            x = 0
+            y = 0
+            string1 = quote
+            found_at = string1.find(list1[0])
+            x = found_at
+            if (found_at >= 0):
+                found_at = string1.find(list1[2])
+                y = found_at
+                if (found_at >= 0):
+                    if (x<y):
+                        if (len(list2) == 0 ):
+                            list2.append(quote)
+                            print("Found: ..."+quote[0:found_at +500], "...")
+                            z = 1
+                        else:
+                            for k in range(0,len(list2)):
+                                if(list2[k] != quote):
+                                    list2.append(quote)
+                                    print("Found: ..."+quote[0:found_at +500], "...")
+                                    z = 1
+                                    break                     
+    if (z == 0):
+            print("No results found")
 
 if __name__ == '__main__': 
     query()
