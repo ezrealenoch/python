@@ -4,11 +4,9 @@
 # CSCI 6651
 # Professor Gulnora Nurmatova 
 
-import sys
-
 def count_frequency(mylist):
     newlist = []
-    iterable = []
+    # iterable = []
     uniqueList = list(set(mylist))
     uniques = len(uniqueList)
     for i in range(0,uniques):
