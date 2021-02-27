@@ -37,5 +37,3 @@ def count_frequency(mylist):
 if __name__ == '__main__': 
     mylist=["one", "two","eleven",  "one", "three", "two", "eleven", "three", "seven", "eleven"]
     print(count_frequency(mylist))
-    
-    

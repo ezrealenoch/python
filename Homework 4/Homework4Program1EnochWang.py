@@ -9,6 +9,5 @@ def celsius(F):
     return Tc
     
     
-if __name__ == '__main__': 
-    print(celsius(68))
+print(celsius(68))
     
