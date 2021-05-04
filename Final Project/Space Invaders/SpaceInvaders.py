@@ -109,17 +109,25 @@ class Game:
             for alien in self.aliens:
                 alien.draw()
                 alien.checkCollision(self)
+
                 if (alien.y > height):
-                    self.lost = True
-                    self.displayRedText("YOU DIED level " + str(level) + " Continue? y/n")
-                    pressed = pygame.key.get_pressed()
-                    if pressed[pygame.K_y]:
-                         self.obsticle.clear()
-                         self.aliens.clear()
-                    elif pressed[pygame.K_n]:
-                        pygame.quit()
-                        sys.exit()
-            
+                    if (lives == 0):
+                        self.displayRedText("GAME OVER! any key to exit")
+                        pressed = pygame.key.get_pressed()
+                        if event.type == pygame.KEYDOWN:
+                            pygame.quit()
+                            sys.exit()
+                    else:
+                        self.lost = True
+                        self.displayRedText("YOU DIED level " + str(level) + " Continue? y/n")
+                        pressed = pygame.key.get_pressed()
+                        if pressed[pygame.K_y]:
+                             self.obsticle.clear()
+                             self.aliens.clear()
+                        elif pressed[pygame.K_n]:
+                            pygame.quit()
+                            sys.exit()
+                
             for obsticle in self.obsticle:
                 obsticle.draw()
                 obsticle.checkCollision(self)
