@@ -1,3 +1,9 @@
+# Enoch Wang
+# 5/7/2020
+# Final Project: 2 Crawler Indexer Search
+# CSCI 6651
+# Professor Gulnora Nurmatova 
+
 import requests
 import urllib.request
 from urllib.error import  URLError
