@@ -5,7 +5,7 @@
 # Professor Gulnora Nurmatova 
 
 from wsgiref.simple_server import make_server
-import re, os, json
+import re, os, json, time
 
 class my_dictonary(dict):
     
@@ -31,7 +31,7 @@ def get_form_vals(post_str):
 
 def load():
     print("Current Directory:",os.getcwd())
-    directory = "Indexer"
+    directory = "Indexed"
     os.chdir(os.getcwd())    
     os.chdir(directory)    
     count = 1
@@ -75,7 +75,9 @@ def searchbar(environ, start_response):
     if(len(environ['QUERY_STRING']) > 1):
         message += "<br> Search Recieved"
         for param in environ['QUERY_STRING'].split("&"):
+            start = time.time()
             found = []
+            alsofound = []
             paramlower = param[7:]
             paramlower = paramlower.lower()
             for key, keyword in keywordDic.items():
@@ -87,27 +89,31 @@ def searchbar(environ, start_response):
                 lower = title.lower()
                 if lower.find(paramlower) != -1:
                     found.append(key)        
-                    
+            
             res = []
             for i in found:
                 if i not in res:
                     res.append(i)
                     
-                    
+            end = time.time()
+            total = end - start
+            total = round(total,5)
+            message += '<p> Search Time:    ' + str(total) + ' Seconds</p>'
+            message += '<p> Search Results: ' + str(len(res)) + '</p>'
             print(res)
             for i in range(len(res)):
                 foundlink = " "
                 foundkeyword = " "
                 foundtitle = " "
                 if linkDic.has_key(res[i]):
-                    foundlink = linkDic.get(res[i])
+                    foundlink = linkDic.get((res[i]))
                 if titleDic.has_key(res[i]):
                     foundtitle = titleDic.get(res[i]) 
                 if keywordDic.has_key(res[i]):
                     foundkeyword = keywordDic.get(res[i])
                 
                 message += '<br><br><p style="font-size:30px;">' + foundtitle + '</p>'
-                message += '<a href="url">' + foundlink +'</a>'
+                message += '<a href='+ foundlink +'>' + foundlink +'</a>'
                 message += '<p>' + foundkeyword + '</p>'    
     
     

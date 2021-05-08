@@ -57,10 +57,12 @@ def getcontent(link, domain):
                 regextitle = re.compile('<title>(?P<title>(.*))</title>')
                 regexkeywords = re.compile('<meta name="Keywords" content="(?P<keywords>(.*))" />')
                 regexlink = re.compile(domain + "[/\w+]*")
+                
                 result = regextitle.search(content_string, re.IGNORECASE)
                 if result:
                     title = result.group("title")
                     titleDic.add(iterator, title)
+                    
                 result = regexkeywords.search(content_string, re.IGNORECASE)
                 if result:
                     keyword = result.group("keywords")
@@ -73,11 +75,13 @@ def getcontent(link, domain):
                 
                 for link in re.findall(r'href=[\'"]?([^\'" >]+)', content_string):
                      if (False == bool(re.search(":", link))) and (False == bool(re.search(".pdf", link)) and (False == bool(re.search("title-ix.", link)))):
-                        link = domain + link 
-                        if link not in linkDic.values():
-                            # print("HREF LINK : " + link)
-                            getcontent(link, domain)
-                
+                        if link[0].isalpha() or link[0] == '/':
+                            if link[-4:] != ".css" and link[-4:] != "docx" and (link.find("_resources") == -1):
+                                link = domain + link 
+                                if link not in linkDic.values():
+                                    print("HREF LINK : " + link)
+                                    getcontent(link, domain)
+                    
         except URLError as e:
             add_bad()
             print("Error Opening : " + link)
@@ -102,8 +106,11 @@ while True:
     print("4) Title Search")
     print("5) Exit")
     userinput = input("User Selection : ")
-    
-    if(int(userinput) == 1):
+    userint = 0
+    if userinput.isdigit():
+        userint = int(userinput)
+
+    if(userint == 1):
         userurl = input("Enter URL: ")
         userdomain = input("Enter Domain: ")
         
@@ -111,41 +118,38 @@ while True:
         print(linkDic)
         print(keywordDic)
         print(titleDic)
-        
-        print("Current Directory:",os.getcwd())
-        directory = "Indexer"
+        os.chdir(sys.path[0])
+        print(os.chdir(sys.path[0]))
+        directory = "Indexed"
         if (not os.path.exists(directory)):
             os.mkdir(directory)
-            print("Created ", directory)
-        os.chdir(os.getcwd())    
+            print("Created ", directory)   
         os.chdir(directory)    
         
-        out = open("links.txt", "w")
+        out = open("links.txt", "w", encoding="utf-8")
         for i in linkDic:
             out.write(linkDic.get(i))
             out.write("\n")    
         out.close()
         
-        with io.open("keywords.txt", "w", encoding="utf-8") as out:
-            for i in keywordDic:
-                out.write(keywordDic.get(i))
-                out.write("\n")
+        out = open("keywords.txt", "w", encoding="utf-8")
+        for i in keywordDic:
+            out.write(keywordDic.get(i))
+            out.write("\n")
         out.close()
         
-        with io.open("titles.txt", "w", encoding="utf-8") as out:
-            for i in titleDic:
-                out.write(titleDic.get(i))
-                out.write("\n")
+        out = open("titles.txt", "w", encoding="utf-8")
+        for i in titleDic:
+            out.write(titleDic.get(i))
+            out.write("\n")
         out.close()
         
-    elif(int(userinput) == 2):
-        directory = "Indexer"
-        print("Current Directory:",os.getcwd())
-        os.chdir(os.getcwd())
+    elif(userint == 2):
+        directory = "Indexed"
+        os.chdir(sys.path[0])
         if (not os.path.exists(directory)):
             print("No Index to Load")
         else:
-            os.chdir(os.getcwd())
             os.chdir(directory)
             
             count = 1
@@ -167,62 +171,76 @@ while True:
                     count += 1
                     
             count = 1
-            with open("titles.txt", "r") as link_file:
+            with open("titles.txt", "r", encoding="utf8") as link_file:
                 while True:
-                    link = link_file.readline()
+                    link =  link_file.readline()
                     if not link:
                         break
                     titleDic.add(count, link)
                     count += 1         
      
-    elif(int(userinput) == 3):
+    elif(userint == 3):
         if keywordDic:
             userinput = input("Search Keyword: ")
             found = []
+            userinput = userinput.lower()
             for key, keyword in keywordDic.items():
-                if keyword.find(userinput) != -1:
+                newkeyword = keyword.lower()
+                if newkeyword.find(userinput) != -1:
                     found.append(key)
-                    
-            for i in range(len(found)):
-                foundlink = " "
-                foundkeyword = " "
-                foundtitle = " "
-                if linkDic.has_key(found[i]):
-                    foundlink = linkDic.get(found[i])
-                if titleDic.has_key(found[i]):
-                    foundtitle = titleDic.get(found[i]) 
-                if keywordDic.has_key(found[i]):
-                    foundkeyword = keywordDic.get(found[i])
-                tempstring = '{ "link": "' + foundlink + '", "title": "' + foundtitle + '", "keywords": "' + foundkeyword + '"}'
-                newjson = json.dumps(tempstring)
-                print(newjson)
-            print("Results Found: " + str(len(found)))
-        else:
-            print("Empty Index")
-    elif(int(userinput) == 4):
-        if titleDic:
-            userinput = input("Search Title: ")
-            found = []
-            for key, title in titleDic.items():
-                if title.find(userinput) != -1:
-                    found.append(key)
+            
+            res = []
+            for i in found:
+                if i not in res:
+                    res.append(i)
             
             for i in range(len(found)):
                 foundlink = " "
                 foundkeyword = " "
                 foundtitle = " "
-                if linkDic.has_key(found[i]):
-                    foundlink = linkDic.get(found[i])
-                if titleDic.has_key(found[i]):
-                    foundtitle = titleDic.get(found[i]) 
-                if keywordDic.has_key(found[i]):
-                    foundkeyword = keywordDic.get(found[i])
+                if linkDic.has_key(res[i]):
+                    foundlink = linkDic.get(res[i])
+                if titleDic.has_key(res[i]):
+                    foundtitle = titleDic.get(res[i]) 
+                if keywordDic.has_key(res[i]):
+                    foundkeyword = keywordDic.get(res[i])
+                tempstring = '{ "link": "' + foundlink + '", "title": "' + foundtitle + '", "keywords": "' + foundkeyword + '"}'
+                newjson = json.dumps(tempstring)
+                print(newjson)
+            print("Results Found: " + str(len(res)))
+        else:
+            print("Empty Index")
+    elif(userint == 4):
+        if titleDic:
+            userinput = input("Search Title: ")
+            found = []
+            userinput = userinput.lower()
+            for key, title in titleDic.items():
+                newtitle = title.lower()
+                if newtitle.find(userinput) != -1:
+                    found.append(key)
+                    
+            res = []
+            for i in found:
+                if i not in res:
+                    res.append(i)   
+            
+            for i in range(len(found)):
+                foundlink = " "
+                foundkeyword = " "
+                foundtitle = " "
+                if linkDic.has_key(res[i]):
+                    foundlink = linkDic.get(res[i])
+                if titleDic.has_key(res[i]):
+                    foundtitle = titleDic.get(res[i]) 
+                if keywordDic.has_key(res[i]):
+                    foundkeyword = keywordDic.get(res[i])
                 tempstring = '{ "link": "' + foundlink + '", "title": "' + foundtitle + '", "keywords": "' + foundkeyword + '"}'
                 newjson = json.dumps(tempstring)    
                 print(newjson)
-            print("Results Found: " + str(len(found)))
+            print("Results Found: " + str(len(res)))
                 
-    elif(int(userinput) == 5):
+    elif(userint == 5):
         sys.exit()
     else:
         print("invalid selection")

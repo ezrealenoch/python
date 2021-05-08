@@ -11,7 +11,8 @@ INSTRUCTIONS:
 	1) Install pygame module. This can be done by opening your python enviorment and executing the command "pip install pygame"
 	Ensure that the enviorment has pip already installed. Versions of pip can be displayed with the command "pip freeze"
 	
-	2) Navigate to SpaceInvaders.py directory with python enviorment and run with command "python SpaceInavders.py"
+	2) Navigate to SpaceInvaders.py directory with python enviorment and run with command "python SpaceInavders.py", Ensure all files contained within GitHub
+	exist in the directory (alien image dependices) 
 	
 	3) Ship controls are "left and right arrow keys" to move, "space" to launch rockets, and "z" shoots a bomb that clears the whole level (no points for using bomb).
 	
