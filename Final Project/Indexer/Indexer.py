@@ -90,6 +90,9 @@ def getcontent(link, domain):
         except:
             print("Probably a suspecious link")
         
+def reset():
+    global iterator
+    iterator = 0
 
 def add():
     global iterator
@@ -111,6 +114,10 @@ while True:
         userint = int(userinput)
 
     if(userint == 1):
+        keywordDic.clear()
+        titleDic.clear()
+        linkDic.clear()
+        reset()
         userurl = input("Enter URL: ")
         userdomain = input("Enter Domain: ")
         
@@ -153,7 +160,7 @@ while True:
             os.chdir(directory)
             
             count = 1
-            with open("links.txt", "r") as link_file:
+            with open("links.txt", "r", encoding="utf-8") as link_file:
                 while True:
                     link = link_file.readline()
                     if not link:
@@ -162,7 +169,7 @@ while True:
                     count += 1
             
             count = 1
-            with open("keywords.txt", "r") as link_file:
+            with open("keywords.txt", "r", encoding="utf-8") as link_file:
                 while True:
                     link = link_file.readline()
                     if not link:
