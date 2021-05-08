@@ -5,58 +5,116 @@
 # Professor Gulnora Nurmatova 
 
 from wsgiref.simple_server import make_server
-from googleapiclient.discovery import build
-import re, time, requests
+import re, os, json
 
-my_api_key = "AIzaSyAioFz0uycfBtqicoGeWXB7dK8gHc5GMUI" #The API_KEY you acquired
-my_cse_id = "30def17c2d9c73cb8" #The search-engine-ID you created
+class my_dictonary(dict):
+    
+    def __init__(self):
+        self = dict()
+        
+    def add(self, key, value):
+        self[key] = value
+    
+    def has_key(self, key):
+        if key in self.keys():
+            return True
+        else:
+            return False
 
-start = 1
-size = 10
-firstsearch = 0
+linkDic = my_dictonary()
+titleDic = my_dictonary()
+keywordDic = my_dictonary()
 
-def add():
-    global firstsearch
-    firstsearch += 1
+def get_form_vals(post_str):
+    form_vals = {item.split("=")[0]: item.split("=")[1] for item in post_str.decode().split("&")}
+    return form_vals
 
-def google_search2():    
-    link = "https://www.googleapis.com/customsearch/v1?key="+ my_api_key+ "&cx="+ my_cse_id +"&q=*"+"&alt=json"+"&start="+ str(start)+"&num="+ str(10)
-    response = requests.get(link)
-    if firstsearch == 0:
-            print("Search Time   : " + str(response.json()['searchInformation']['searchTime']))
-            print("Total Results : " + str(response.json()['searchInformation']['totalResults']))
-            add()
-    links = response.json()['items']
-    return links
-
-
-def execution_time(r):
-    def inner():
-        start = time.time()
-        s = r()
-        end = time.time()
-        total = end - start
-        return  {"(":total, "seconds)":s}
-    return 
-
-def hello_world_app(environ, start_response):
-	#print("ENVIRON:", environ)
-	message=""
-	status = '200 OK'
-	headers = [('Content-type', 'html; charset=utf-8')]
-	start_response(status, headers)
-	if(len(environ['QUERY_STRING'])>1):
-		message += "<br> Your data has been recieved:"
-		for param in environ['QUERY_STRING'].split("&"):
-			message += "<br>"+param
+def load():
+    print("Current Directory:",os.getcwd())
+    directory = "Indexer"
+    os.chdir(os.getcwd())    
+    os.chdir(directory)    
+    count = 1
+    with open("links.txt", "r") as link_file:
+        while True:
+            link = link_file.readline()
+            if not link:
+                break
+            linkDic.add(count, link)
+            count += 1
             
-	message += "<h1>Search Engine</h1>"                           
-	message += "<form><br>Animal:<input type=text name='Search'>"
-	message += "<br><br><input type='submit' name='Search' ></form>"
-	return[bytes(message,'utf-8')]
+    count = 1
+    with open("keywords.txt", "r") as link_file:
+        while True:
+            link = link_file.readline()
+            if not link:
+                break
+            keywordDic.add(count, link)
+            count += 1
+        
+    count = 1
+    with open("titles.txt", "r") as link_file:
+        while True:
+            link = link_file.readline()
+            if not link:
+                break
+            titleDic.add(count, link)
+            count += 1       
 
-httpd = make_server('', 8000, hello_world_app)
+def searchbar(environ, start_response):
+    foundlink = " "
+    foundkeyword = " "
+    foundtitle = " "
+    message = ""
+    status = '200 OK'
+    headers = [('Content-type', 'html; charset=utf-8')]
+    start_response(status, headers)
+    message += "<h1>New Haven Search Bar</h1>"
+    message += '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">'
+    message += '<br><br><form class="example" action="action_page.php"><input type="text" placeholder="Search.." name="search"><button type="submit"><i class="fa fa-search"></i></button></form>'
+    if(len(environ['QUERY_STRING']) > 1):
+        message += "<br> Search Recieved"
+        for param in environ['QUERY_STRING'].split("&"):
+            found = []
+            paramlower = param[7:]
+            paramlower = paramlower.lower()
+            for key, keyword in keywordDic.items():
+                lower = keyword.lower()
+                if lower.find(paramlower) != -1:
+                    found.append(key)
+                    
+            for key, title in titleDic.items():
+                lower = title.lower()
+                if lower.find(paramlower) != -1:
+                    found.append(key)        
+                    
+            res = []
+            for i in found:
+                if i not in res:
+                    res.append(i)
+                    
+                    
+            print(res)
+            for i in range(len(res)):
+                foundlink = " "
+                foundkeyword = " "
+                foundtitle = " "
+                if linkDic.has_key(res[i]):
+                    foundlink = linkDic.get(res[i])
+                if titleDic.has_key(res[i]):
+                    foundtitle = titleDic.get(res[i]) 
+                if keywordDic.has_key(res[i]):
+                    foundkeyword = keywordDic.get(res[i])
+                
+                message += '<br><br><p style="font-size:30px;">' + foundtitle + '</p>'
+                message += '<a href="url">' + foundlink +'</a>'
+                message += '<p>' + foundkeyword + '</p>'    
+    
+    
+    return[bytes(message,'utf-8')]
+
+load()
+httpd = make_server('', 8000, searchbar)
 print("Serving on port 8000...")
-
 
 httpd.serve_forever()
